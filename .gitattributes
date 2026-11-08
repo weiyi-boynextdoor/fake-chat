@@ -1,0 +1,20 @@
+* text=auto
+
+*.swift text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.pbxproj text eol=lf
+*.xcconfig text eol=lf
+*.storyboard text eol=lf
+*.xib text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.heic binary
+*.pdf binary
+*.ttf binary
+*.otf binary

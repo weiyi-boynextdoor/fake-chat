@@ -1,0 +1,50 @@
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Xcode build products and caches
+build/
+DerivedData/
+*.xcarchive
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcresult
+
+# Xcode per-user state (keep shared project and scheme files)
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Swift Package Manager (keep Package.resolved)
+.build/
+.swiftpm/
+
+# Dependency output, if these tools are introduced
+Pods/
+Carthage/Build/
+
+# Local configuration and signing credentials
+.env
+.env.*
+!.env.example
+*.local.xcconfig
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+
+# Editor and temporary files
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+
+# Generated exports and local artifacts
+/artifacts/
+/exports/
+/tmp/
