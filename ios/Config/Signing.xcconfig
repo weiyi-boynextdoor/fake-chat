@@ -1,0 +1,4 @@
+CODE_SIGN_STYLE = Automatic
+PRODUCT_BUNDLE_IDENTIFIER = com.example.fakechat
+
+#include? "Signing.local.xcconfig"
