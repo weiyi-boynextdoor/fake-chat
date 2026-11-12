@@ -7,13 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A0000000000000000000000C /* FakeChat/FakeChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000006 /* FakeChat/FakeChatApp.swift */; };
+		C00000000000000000000000 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000000 /* ContentView.swift */; };
+		C00000000000000000000001 /* FakeChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* FakeChatApp.swift */; };
+		C00000000000000000000002 /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* CharacterManager.swift */; };
+		C00000000000000000000003 /* CreateCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* CreateCharacterView.swift */; };
+		C00000000000000000000004 /* NewConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000004 /* NewConversationView.swift */; };
+		C00000000000000000000005 /* Character.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* Character.swift */; };
+		C00000000000000000000006 /* ChatPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* ChatPlatform.swift */; };
+		C00000000000000000000007 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* Conversation.swift */; };
+		C00000000000000000000008 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* Message.swift */; };
+		C00000000000000000000009 /* SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* SavedState.swift */; };
+		C0000000000000000000000A /* WeChatChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000A /* WeChatChatView.swift */; };
+		C0000000000000000000000B /* WeChatConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000B /* WeChatConversationListView.swift */; };
+		C0000000000000000000000C /* WeChatMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* WeChatMessageRow.swift */; };
+		C0000000000000000000000D /* WeChatStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000D /* WeChatStyle.swift */; };
+		C0000000000000000000000E /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000E /* Avatar.swift */; };
+		C0000000000000000000000F /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000F /* Localization.swift */; };
+		C00000000000000000000010 /* ChatPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* ChatPersistence.swift */; };
+		C00000000000000000000011 /* ChatStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* ChatStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A00000000000000000000014 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Signing.xcconfig; sourceTree = "<group>"; };
-		A00000000000000000000006 /* FakeChat/FakeChatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeChat/FakeChatApp.swift; sourceTree = "<group>"; };
 		A00000000000000000000007 /* FakeChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = FakeChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00000000000000000000000 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B00000000000000000000001 /* FakeChatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeChatApp.swift; sourceTree = "<group>"; };
+		B00000000000000000000002 /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
+		B00000000000000000000003 /* CreateCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCharacterView.swift; sourceTree = "<group>"; };
+		B00000000000000000000004 /* NewConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationView.swift; sourceTree = "<group>"; };
+		B00000000000000000000005 /* Character.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Character.swift; sourceTree = "<group>"; };
+		B00000000000000000000006 /* ChatPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPlatform.swift; sourceTree = "<group>"; };
+		B00000000000000000000007 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
+		B00000000000000000000008 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		B00000000000000000000009 /* SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedState.swift; sourceTree = "<group>"; };
+		B0000000000000000000000A /* WeChatChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatChatView.swift; sourceTree = "<group>"; };
+		B0000000000000000000000B /* WeChatConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatConversationListView.swift; sourceTree = "<group>"; };
+		B0000000000000000000000C /* WeChatMessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatMessageRow.swift; sourceTree = "<group>"; };
+		B0000000000000000000000D /* WeChatStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatStyle.swift; sourceTree = "<group>"; };
+		B0000000000000000000000E /* Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
+		B0000000000000000000000F /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		B00000000000000000000010 /* ChatPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPersistence.swift; sourceTree = "<group>"; };
+		B00000000000000000000011 /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,7 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000014 /* Signing.xcconfig */,
-				A00000000000000000000006 /* FakeChat/FakeChatApp.swift */,
+				D00000000000000000000000 /* FakeChat */,
 				A00000000000000000000004 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -42,6 +76,103 @@
 				A00000000000000000000007 /* FakeChat.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000000 /* FakeChat */ = {
+			isa = PBXGroup;
+			children = (
+				D00000000000000000000001 /* App */,
+				D00000000000000000000002 /* Features */,
+				D00000000000000000000005 /* Models */,
+				D00000000000000000000006 /* Platforms */,
+				D00000000000000000000008 /* Shared */,
+				D00000000000000000000009 /* Storage */,
+			);
+			path = FakeChat;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000000 /* ContentView.swift */,
+				B00000000000000000000001 /* FakeChatApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000002 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				D00000000000000000000003 /* Characters */,
+				D00000000000000000000004 /* Conversations */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000003 /* Characters */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000002 /* CharacterManager.swift */,
+				B00000000000000000000003 /* CreateCharacterView.swift */,
+			);
+			path = Characters;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000004 /* Conversations */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000004 /* NewConversationView.swift */,
+			);
+			path = Conversations;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000005 /* Character.swift */,
+				B00000000000000000000006 /* ChatPlatform.swift */,
+				B00000000000000000000007 /* Conversation.swift */,
+				B00000000000000000000008 /* Message.swift */,
+				B00000000000000000000009 /* SavedState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000006 /* Platforms */ = {
+			isa = PBXGroup;
+			children = (
+				D00000000000000000000007 /* WeChat */,
+			);
+			path = Platforms;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000007 /* WeChat */ = {
+			isa = PBXGroup;
+			children = (
+				B0000000000000000000000A /* WeChatChatView.swift */,
+				B0000000000000000000000B /* WeChatConversationListView.swift */,
+				B0000000000000000000000C /* WeChatMessageRow.swift */,
+				B0000000000000000000000D /* WeChatStyle.swift */,
+			);
+			path = WeChat;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000008 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				B0000000000000000000000E /* Avatar.swift */,
+				B0000000000000000000000F /* Localization.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000009 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000010 /* ChatPersistence.swift */,
+				B00000000000000000000011 /* ChatStore.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -105,7 +236,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0000000000000000000000C /* FakeChat/FakeChatApp.swift in Sources */,
+				C00000000000000000000000 /* ContentView.swift in Sources */,
+				C00000000000000000000001 /* FakeChatApp.swift in Sources */,
+				C00000000000000000000002 /* CharacterManager.swift in Sources */,
+				C00000000000000000000003 /* CreateCharacterView.swift in Sources */,
+				C00000000000000000000004 /* NewConversationView.swift in Sources */,
+				C00000000000000000000005 /* Character.swift in Sources */,
+				C00000000000000000000006 /* ChatPlatform.swift in Sources */,
+				C00000000000000000000007 /* Conversation.swift in Sources */,
+				C00000000000000000000008 /* Message.swift in Sources */,
+				C00000000000000000000009 /* SavedState.swift in Sources */,
+				C0000000000000000000000A /* WeChatChatView.swift in Sources */,
+				C0000000000000000000000B /* WeChatConversationListView.swift in Sources */,
+				C0000000000000000000000C /* WeChatMessageRow.swift in Sources */,
+				C0000000000000000000000D /* WeChatStyle.swift in Sources */,
+				C0000000000000000000000E /* Avatar.swift in Sources */,
+				C0000000000000000000000F /* Localization.swift in Sources */,
+				C00000000000000000000010 /* ChatPersistence.swift in Sources */,
+				C00000000000000000000011 /* ChatStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,9 +286,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A00000000000000000000014 /* Signing.xcconfig */;
 			buildSettings = {
-
 				CURRENT_PROJECT_VERSION = 1;
-
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Fake Chat";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
@@ -148,7 +294,6 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				MARKETING_VERSION = 0.1.0;
-
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -159,9 +304,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A00000000000000000000014 /* Signing.xcconfig */;
 			buildSettings = {
-
 				CURRENT_PROJECT_VERSION = 1;
-
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Fake Chat";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
@@ -169,7 +312,6 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				MARKETING_VERSION = 0.1.0;
-
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
