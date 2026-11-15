@@ -11,7 +11,7 @@ struct WeChatConversationListView: View {
     private var visible: [Conversation] {
         store.conversations(for: .weChat)
             .filter { search.isEmpty || partner($0)?.name.localizedCaseInsensitiveContains(search) == true }
-            .sorted { ($0.messages.last?.date ?? .distantPast) > ($1.messages.last?.date ?? .distantPast) }
+            .sorted { (store.messages(in: $0).last?.date ?? .distantPast) > (store.messages(in: $1).last?.date ?? .distantPast) }
     }
     private func partner(_ conversation: Conversation) -> Character? {
         conversation.participantIDs.first { $0 != store.currentID }.flatMap(store.character)
@@ -76,8 +76,7 @@ struct WeChatConversationListView: View {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                     TextField(L.text("搜索", "Search"), text: $search)
                 }.padding(9).background(.white, in: RoundedRectangle(cornerRadius: 8)).padding(.horizontal, 12).padding(.vertical, 8)
-                ScrollView {
-                    LazyVStack(spacing: 0) {
+                List {
                         ForEach(visible) { conversation in
                             if let character = partner(conversation) {
                                 Button { path.append(conversation.id) } label: {
@@ -87,16 +86,31 @@ struct WeChatConversationListView: View {
                                             HStack {
                                                 Text(character.name).font(.system(size: 17)).foregroundStyle(.primary)
                                                 Spacer()
-                                                if let date = conversation.messages.last?.date {
+                                                if let date = store.messages(in: conversation).last?.date {
                                                     Text(date, style: .time).font(.system(size: 11)).foregroundStyle(.tertiary)
                                                 }
                                             }
-                                            Text(conversation.messages.last?.text ?? L.text("暂无消息", "No messages yet"))
+                                            Text(store.messages(in: conversation).last?.text ?? L.text("暂无消息", "No messages yet"))
                                                 .font(.system(size: 14)).foregroundStyle(.secondary).lineLimit(1)
                                         }
                                     }.padding(.horizontal, 16).padding(.vertical, 13).background(.white)
-                                }.buttonStyle(.plain)
-                                Divider().padding(.leading, 77)
+                                }
+                                .buttonStyle(.plain)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
+                                .overlay(alignment: .bottom) {
+                                    Color.black.opacity(0.1)
+                                        .frame(height: 0.5)
+                                        .padding(.leading, 77)
+                                        .allowsHitTesting(false)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(L.text("删除", "Delete"), role: .destructive) {
+                                        withAnimation { store.deleteConversation(conversation.id) }
+                                    }.tint(Color(red: 1, green: 0.29, blue: 0.31))
+                                    Button(L.text("不显示", "Hide")) {}.tint(.orange).disabled(true)
+                                    Button(L.text("标为未读", "Mark unread")) {}.tint(.blue).disabled(true)
+                                }
                             }
                         }
                         if visible.isEmpty {
@@ -120,8 +134,10 @@ struct WeChatConversationListView: View {
                                 }.padding(.top, 60)
                             }
                         }
-                    }
-                }.background(.white)
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(.white)
         }
     }
 

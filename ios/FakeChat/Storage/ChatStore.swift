@@ -31,7 +31,24 @@ final class ChatStore: ObservableObject {
 
     func conversations(for platform: ChatPlatform) -> [Conversation] {
         guard let currentID else { return [] }
-        return conversations.filter { $0.platform == platform && $0.participantIDs.contains(currentID) }
+        return conversations.filter {
+            $0.platform == platform && $0.participantIDs.contains(currentID)
+                && !$0.deletedForCharacterIDs.contains(currentID)
+        }
+    }
+
+    func messages(in conversation: Conversation) -> [Message] {
+        guard let currentID else { return [] }
+        return conversation.visibleMessages(for: currentID)
+    }
+
+    func deleteConversation(_ id: UUID) {
+        guard canSave, let currentID,
+              let index = conversations.firstIndex(where: { $0.id == id }),
+              conversations[index].participantIDs.contains(currentID) else { return }
+        conversations[index].deletedForCharacterIDs.insert(currentID)
+        conversations[index].clearedMessageCounts[currentID] = conversations[index].messages.count
+        save()
     }
 
     func addCharacter(name: String, symbol: String, tint: Int) {
@@ -61,9 +78,13 @@ final class ChatStore: ObservableObject {
     func start(with character: Character, platform: ChatPlatform) -> UUID? {
         guard canSave, let currentID, character.id != currentID,
               characters.contains(where: { $0.id == character.id }) else { return nil }
-        if let existing = conversations.first(where: {
+        if let index = conversations.firstIndex(where: {
             $0.platform == platform && Set($0.participantIDs) == Set([currentID, character.id])
-        }) { return existing.id }
+        }) {
+            conversations[index].deletedForCharacterIDs.remove(currentID)
+            save()
+            return conversations[index].id
+        }
         let conversation = Conversation(platform: platform, participantIDs: [currentID, character.id])
         conversations.insert(conversation, at: 0)
         save()
@@ -75,6 +96,7 @@ final class ChatStore: ObservableObject {
               let index = conversations.firstIndex(where: { $0.id == id }),
               conversations[index].participantIDs.contains(currentID) else { return }
         conversations[index].messages.append(Message(senderID: currentID, text: text))
+        conversations[index].deletedForCharacterIDs.removeAll()
         save()
     }
 

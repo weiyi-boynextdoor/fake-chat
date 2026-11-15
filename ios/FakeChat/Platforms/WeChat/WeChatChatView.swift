@@ -8,16 +8,18 @@ struct WeChatChatView: View {
     private var conversation: Conversation? { store.conversations.first { $0.id == conversationID } }
     private var partner: Character? { conversation?.participantIDs.first { $0 != store.currentID }.flatMap(store.character) }
 
+    private var messages: [Message] { conversation.map(store.messages(in:)) ?? [] }
+
     var body: some View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 18) {
-                        if let first = conversation?.messages.first {
+                        if let first = messages.first {
                             Text(first.date, format: .dateTime.month().day().hour().minute())
                                 .font(.system(size: 12)).foregroundStyle(.secondary).padding(.top, 18)
                         }
-                        ForEach(conversation?.messages ?? []) { message in
+                        ForEach(messages) { message in
                             if let sender = store.character(message.senderID) {
                                 WeChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID).id(message.id)
                             }
@@ -25,9 +27,9 @@ struct WeChatChatView: View {
                     }.padding(.horizontal, 12).padding(.bottom, 20)
                 }
                 .scrollDismissesKeyboard(.interactively)
-                .onAppear { if let id = conversation?.messages.last?.id { proxy.scrollTo(id, anchor: .bottom) } }
-                .onChange(of: conversation?.messages.count) { _, _ in
-                    if let id = conversation?.messages.last?.id { withAnimation { proxy.scrollTo(id, anchor: .bottom) } }
+                .onAppear { if let id = messages.last?.id { proxy.scrollTo(id, anchor: .bottom) } }
+                .onChange(of: messages.map(\.id)) { _, _ in
+                    if let id = messages.last?.id { withAnimation { proxy.scrollTo(id, anchor: .bottom) } }
                 }
             }
             Divider()
