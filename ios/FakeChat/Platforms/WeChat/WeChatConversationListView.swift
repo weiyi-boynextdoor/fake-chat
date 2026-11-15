@@ -39,16 +39,6 @@ struct WeChatConversationListView: View {
             .navigationTitle(selectedTab.title).navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(WeChatStyle.background, for: .navigationBar).toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { showCharacters = true } label: {
-                        if let current = store.current {
-                            Avatar(character: current, size: 29)
-                        } else {
-                            Image(systemName: "person.crop.circle").font(.system(size: 25))
-                        }
-                    }
-                        .accessibilityLabel(L.text("切换当前角色", "Switch current character"))
-                }
                 if selectedTab == .chats || selectedTab == .contacts {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { showNewChat = true } label: { Image(systemName: "plus.circle").foregroundStyle(.primary) }
@@ -162,10 +152,19 @@ struct WeChatConversationListView: View {
     private var profile: some View {
         List {
             if let current = store.current {
-                HStack(spacing: 16) {
-                    Avatar(character: current, size: 60)
-                    Text(current.name).font(.title3.weight(.semibold))
-                }.padding(.vertical, 20)
+                NavigationLink {
+                    CreateCharacterView(character: current, embeddedInNavigation: true)
+                } label: {
+                    HStack(spacing: 16) {
+                        Avatar(character: current, size: 60)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(current.name).font(.title3.weight(.semibold)).foregroundStyle(.primary)
+                            if !current.signature.isEmpty {
+                                Text(current.signature).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                            }
+                        }
+                    }.padding(.vertical, 20)
+                }
             }
             Button { showCharacters = true } label: {
                 Label(L.text("角色管理", "Characters"), systemImage: "person.2")

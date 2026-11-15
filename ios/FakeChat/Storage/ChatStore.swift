@@ -51,13 +51,23 @@ final class ChatStore: ObservableObject {
         save()
     }
 
-    func addCharacter(name: String, symbol: String, tint: Int) {
+    func addCharacter(name: String, avatarData: Data? = nil, signature: String = "") {
         guard canSave else { return }
         let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { return }
-        let character = Character(name: name, symbol: symbol, tint: tint)
+        let character = Character(name: name, avatarData: avatarData, signature: signature)
         characters.append(character)
         if current == nil { currentID = character.id }
+        save()
+    }
+
+    func updateCharacter(_ id: UUID, name: String, avatarData: Data?, signature: String? = nil) {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard canSave, !name.isEmpty,
+              let index = characters.firstIndex(where: { $0.id == id }) else { return }
+        characters[index].name = name
+        characters[index].avatarData = avatarData
+        if let signature { characters[index].signature = signature }
         save()
     }
 

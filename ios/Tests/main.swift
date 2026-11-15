@@ -11,13 +11,14 @@ let persistence = ChatPersistence(defaults: defaults)
 let store = ChatStore(persistence: persistence)
 check(store.characters.isEmpty && store.conversations.isEmpty && store.current == nil, "Fresh install must be empty")
 check(store.conversations(for: .weChat).isEmpty, "No current character must produce no conversations")
-store.addCharacter(name: "  ", symbol: "person.fill", tint: 0)
+store.addCharacter(name: "  ")
 check(store.characters.isEmpty, "Blank names must be rejected")
-store.addCharacter(name: " Alice ", symbol: "person.fill", tint: 0)
+let avatar = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=")!
+store.addCharacter(name: " Alice ", avatarData: avatar)
 let alice = store.characters[0]
 check(store.currentID == alice.id && alice.name == "Alice", "First character must be selected")
 check(store.start(with: alice, platform: .weChat) == nil, "Self conversations must be rejected")
-store.addCharacter(name: "Bob", symbol: "leaf.fill", tint: 1)
+store.addCharacter(name: "Bob")
 let bob = store.characters[1]
 check(store.currentID == alice.id, "Creating another character must preserve selection")
 let id = store.start(with: bob, platform: .weChat)!
@@ -29,12 +30,35 @@ store.send(" \n ", to: id)
 check(store.conversations[0].messages.map(\.senderID) == [alice.id, bob.id], "Both participants must be able to send; blank messages must be rejected")
 let restored = ChatStore(persistence: persistence)
 check(restored.currentID == bob.id && restored.characters.count == 2, "Restore characters and current identity")
+check(restored.characters[0].avatarData == avatar, "Persist uploaded avatar bytes")
 check(restored.conversations[0].messages.map(\.text) == ["Hello", "Hi"], "Restore message text and order")
 check(restored.conversations(for: .weChat).count == 1, "Filter conversations by platform and identity")
+
+let replacementAvatar = Data([1, 2, 3, 4])
+restored.updateCharacter(alice.id, name: "Alice updated", avatarData: replacementAvatar, signature: "Hello 世界 🌿")
+let edited = ChatStore(persistence: persistence)
+check(edited.characters[0].signature == "Hello 世界 🌿", "Persist signature with avatar and name")
+check(edited.characters[0].name == "Alice updated" && edited.characters[0].avatarData == replacementAvatar, "Persist edits to an existing avatar")
+check(edited.currentID == bob.id && edited.conversations[0].messages.count == 2, "Avatar editing must preserve identity and conversations")
+restored.updateCharacter(alice.id, name: "   ", avatarData: nil)
+check(restored.characters[0].avatarData == replacementAvatar, "Invalid edits must not clear an avatar")
+
+restored.updateCharacter(alice.id, name: "Alice updated", avatarData: replacementAvatar)
+check(restored.characters[0].signature == "Hello 世界 🌿", "Editing other fields must preserve signature")
+restored.updateCharacter(alice.id, name: "Alice updated", avatarData: replacementAvatar, signature: "")
+check(ChatStore(persistence: persistence).characters[0].signature.isEmpty, "Allow clearing a signature")
 
 let state = try persistence.load()!
 let encoded = try JSONEncoder().encode(state)
 var legacy = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
+var legacyCharacters = legacy["characters"] as! [[String: Any]]
+for index in legacyCharacters.indices {
+    legacyCharacters[index].removeValue(forKey: "avatarData")
+    legacyCharacters[index].removeValue(forKey: "signature")
+    legacyCharacters[index]["symbol"] = "person.fill"
+    legacyCharacters[index]["tint"] = 0
+}
+legacy["characters"] = legacyCharacters
 var conversations = legacy["conversations"] as! [[String: Any]]
 conversations[0].removeValue(forKey: "platform")
 conversations[0].removeValue(forKey: "deletedForCharacterIDs")
@@ -43,6 +67,8 @@ legacy["conversations"] = conversations
 defaults.set(try JSONSerialization.data(withJSONObject: legacy), forKey: "fake-chat.state.v1")
 let migrated = ChatStore(persistence: persistence)
 check(migrated.error == nil && migrated.conversations[0].platform == .weChat, "Legacy records must default to WeChat")
+check(migrated.characters.count == 2 && migrated.characters[0].avatarData == nil, "Legacy vector avatars must migrate to an empty photo without losing characters")
+check(migrated.characters[0].signature.isEmpty, "Legacy profiles must default to an empty signature")
 check(migrated.conversations[0].id == id && migrated.currentID == bob.id, "Legacy IDs and selection must be preserved")
 
 legacy["currentID"] = UUID().uuidString
@@ -50,7 +76,7 @@ defaults.set(try JSONSerialization.data(withJSONObject: legacy), forKey: "fake-c
 let repaired = ChatStore(persistence: persistence)
 check(repaired.currentID == alice.id, "Invalid selection must recover to an existing character")
 
-restored.addCharacter(name: "Charlie", symbol: "star.fill", tint: 2)
+restored.addCharacter(name: "Charlie")
 let charlie = restored.characters[2]
 restored.select(alice)
 let retainedID = restored.start(with: charlie, platform: .weChat)!
@@ -77,9 +103,9 @@ do {
     defer { deletionDefaults.removePersistentDomain(forName: deletionSuite) }
     let persistence = ChatPersistence(defaults: deletionDefaults)
     let chats = ChatStore(persistence: persistence)
-    chats.addCharacter(name: "A", symbol: "person.fill", tint: 0)
-    chats.addCharacter(name: "B", symbol: "person.fill", tint: 1)
-    chats.addCharacter(name: "C", symbol: "person.fill", tint: 2)
+    chats.addCharacter(name: "A")
+    chats.addCharacter(name: "B")
+    chats.addCharacter(name: "C")
     let a = chats.characters[0], b = chats.characters[1], c = chats.characters[2]
     let id = chats.start(with: b, platform: .weChat)!
     let unrelated = chats.start(with: c, platform: .weChat)!
@@ -116,6 +142,6 @@ do {
 let corrupted = Data("invalid data".utf8)
 defaults.set(corrupted, forKey: "fake-chat.state.v1")
 let damaged = ChatStore(persistence: persistence)
-damaged.addCharacter(name: "New", symbol: "person.fill", tint: 0)
+damaged.addCharacter(name: "New")
 check(damaged.error != nil && defaults.data(forKey: "fake-chat.state.v1") == corrupted, "Failed loads must preserve original data")
 print("Passed: empty state, character creation, conversation flow, persistence, legacy migration, character deletion, per-character conversation deletion, and data preservation")

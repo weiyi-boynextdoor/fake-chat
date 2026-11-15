@@ -5,6 +5,7 @@ struct CharacterManager: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showCreate = false
     @State private var pendingDeletion: Character?
+    @State private var editingCharacter: Character?
     var body: some View {
         NavigationStack {
             List {
@@ -19,10 +20,12 @@ struct CharacterManager: View {
                             }.padding(.vertical, 4)
                         }
                         .swipeActions {
+                            Button(L.text("编辑", "Edit")) { editingCharacter = character }.tint(.blue)
                             Button(L.text("删除", "Delete")) { pendingDeletion = character }
                                 .tint(.red)
                         }
                         .contextMenu {
+                            Button(L.text("编辑角色", "Edit character")) { editingCharacter = character }
                             Button(L.text("删除角色", "Delete character"), role: .destructive) { pendingDeletion = character }
                         }
                     }
@@ -34,6 +37,7 @@ struct CharacterManager: View {
             .navigationTitle(L.text("角色管理", "Characters"))
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L.text("完成", "Done")) { dismiss() } } }
             .sheet(isPresented: $showCreate) { CreateCharacterView() }
+            .sheet(item: $editingCharacter) { CreateCharacterView(character: $0) }
             .alert(L.text("删除角色？", "Delete character?"), isPresented: Binding(
                 get: { pendingDeletion != nil },
                 set: { if !$0 { pendingDeletion = nil } }
