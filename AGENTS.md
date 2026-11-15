@@ -9,5 +9,5 @@
 ## Repository Structure
 
 - `README.md`: Brief project introduction and links to documentation.
-- `docs/`: Project documentation, design documents, and technical plans.
-- `tasks/`: One Markdown file per development task, with its goal, checklist, acceptance criteria, and status. Use English filenames such as `001-project-setup.md`.
+- `design/`: Design requirements and technical plans; do not add usage instructions.
+- `tasks/`: Keep one simple checklist per feature. Use short, feature-level items such as "Implement the WeChat bottom bar"; do not add an item for every edit, fix, or commit, or require formal goals and acceptance sections. Update the existing feature file for related changes instead of creating a file per request. Use unnumbered English filenames such as `wechat-chat-ui.md`.
