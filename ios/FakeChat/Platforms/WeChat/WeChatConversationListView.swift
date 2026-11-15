@@ -187,10 +187,11 @@ private struct WeChatBottomBar: View {
                 Button { selection = tab } label: {
                     VStack(spacing: 5) {
                         Group {
-                            if tab == .chats {
-                                WeChatTabGlyph(tab: tab).fill()
+                            if selection == tab {
+                                WeChatTabGlyph(tab: tab, isSelected: true).fill(style: FillStyle(eoFill: true))
                             } else {
-                                WeChatTabGlyph(tab: tab).stroke(style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
+                                WeChatTabGlyph(tab: tab, isSelected: false)
+                                    .stroke(style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
                             }
                         }.frame(width: 32, height: 29)
                         Text(tab.title).font(.system(size: 11))
@@ -213,6 +214,7 @@ private struct WeChatBottomBar: View {
 
 private struct WeChatTabGlyph: Shape {
     let tab: WeChatTab
+    let isSelected: Bool
 
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -247,8 +249,12 @@ private struct WeChatTabGlyph: Shape {
             path.closeSubpath()
             if tab == .contacts {
                 for (y, width) in [(11.0, 9.0), (16.0, 9.0), (21.0, 6.0)] {
-                    path.move(to: CGPoint(x: 23, y: y))
-                    path.addLine(to: CGPoint(x: 23 + width, y: y))
+                    if isSelected {
+                        path.addRect(CGRect(x: 23, y: y - 0.8, width: width, height: 1.6))
+                    } else {
+                        path.move(to: CGPoint(x: 23, y: y))
+                        path.addLine(to: CGPoint(x: 23 + width, y: y))
+                    }
                 }
             } else {
                 path = path.offsetBy(dx: 3, dy: 0)
