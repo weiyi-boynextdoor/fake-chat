@@ -25,6 +25,7 @@
 		C0000000000000000000000F /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000F /* Localization.swift */; };
 		C00000000000000000000010 /* ChatPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* ChatPersistence.swift */; };
 		C00000000000000000000011 /* ChatStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* ChatStore.swift */; };
+		E00000000000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00000000000000000000002 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		B0000000000000000000000F /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		B00000000000000000000010 /* ChatPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPersistence.swift; sourceTree = "<group>"; };
 		B00000000000000000000011 /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
+		E00000000000000000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 		D00000000000000000000000 /* FakeChat */ = {
 			isa = PBXGroup;
 			children = (
+				E00000000000000000000002 /* Assets.xcassets */,
 				D00000000000000000000001 /* App */,
 				D00000000000000000000002 /* Features */,
 				D00000000000000000000005 /* Models */,
@@ -226,6 +229,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E00000000000000000000001 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +290,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A00000000000000000000014 /* Signing.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Fake Chat";
@@ -304,6 +309,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A00000000000000000000014 /* Signing.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Fake Chat";
