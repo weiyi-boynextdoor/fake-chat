@@ -1,7 +1,22 @@
+import CoreGraphics
 import Foundation
 
 func check(_ condition: @autoclosure () -> Bool, _ message: String) {
     precondition(condition(), message)
+}
+
+do {
+    let viewport = CGSize(width: 300, height: 300)
+    let landscape = CGSize(width: 1200, height: 600)
+    let portrait = CGSize(width: 600, height: 1200)
+    check(AvatarCropGeometry.minimumZoom(image: landscape, viewport: viewport) == 0.5, "Landscape must fill crop height")
+    check(AvatarCropGeometry.minimumZoom(image: portrait, viewport: viewport) == 0.5, "Portrait must fill crop width")
+    check(AvatarCropGeometry.centeredOffset(image: landscape, viewport: viewport, zoom: 0.5) == CGPoint(x: 150, y: 0), "Center landscape horizontally")
+    check(AvatarCropGeometry.centeredOffset(image: portrait, viewport: viewport, zoom: 0.5) == CGPoint(x: 0, y: 150), "Center portrait vertically")
+    let centered = AvatarCropGeometry.drawingRect(image: landscape, viewport: viewport, zoom: 0.5, offset: CGPoint(x: 150, y: 0), outputSide: 512)
+    check(centered == CGRect(x: -256, y: 0, width: 1024, height: 512), "Export must match the centered viewport")
+    let zoomed = AvatarCropGeometry.drawingRect(image: landscape, viewport: viewport, zoom: 1, offset: CGPoint(x: 600, y: 100), outputSide: 512)
+    check(abs(zoomed.minX + 1024) < 0.001 && abs(zoomed.width - 2048) < 0.001, "Export must preserve zoom and pan")
 }
 
 let suite = "fake-chat.tests.\(UUID().uuidString)"

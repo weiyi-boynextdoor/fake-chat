@@ -1,4 +1,3 @@
-import ImageIO
 import PhotosUI
 import SwiftUI
 import UIKit
@@ -12,6 +11,7 @@ struct CreateCharacterView: View {
     @State private var selection: PhotosPickerItem?
     @State private var isLoading = false
     @State private var photoError: String?
+    @State private var cropRequest: AvatarCropRequest?
     private let characterID: UUID?
     private let embeddedInNavigation: Bool
 
@@ -91,13 +91,24 @@ struct CreateCharacterView: View {
                         throw AvatarImportError.invalidImage
                     }
                     try Task.checkCancellation()
-                    let prepared = try prepareAvatar(data)
+                    guard let request = AvatarCropRequest(data: data) else {
+                        throw AvatarImportError.invalidImage
+                    }
                     try Task.checkCancellation()
-                    avatarData = prepared
+                    cropRequest = request
                 } catch {
                     if !Task.isCancelled {
                         photoError = L.text("无法读取这张照片，请重新选择", "Could not load this photo. Please choose another")
                     }
+                }
+            }
+            .fullScreenCover(item: $cropRequest, onDismiss: {
+                selection = nil
+                isLoading = false
+            }) { request in
+                AvatarCropView(request: request) { data in
+                    avatarData = data
+                    cropRequest = nil
                 }
             }
             .alert(L.text("头像导入失败", "Photo import failed"), isPresented: Binding(
@@ -128,28 +139,7 @@ struct CreateCharacterView: View {
         .contentShape(Rectangle())
     }
 
-    private func prepareAvatar(_ data: Data) throws -> Data {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
-              let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
-                kCGImageSourceCreateThumbnailFromImageAlways: true,
-                kCGImageSourceCreateThumbnailWithTransform: true,
-                kCGImageSourceThumbnailMaxPixelSize: 512
-              ] as CFDictionary) else { throw AvatarImportError.invalidImage }
-        let image = UIImage(cgImage: thumbnail)
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        format.opaque = true
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 512, height: 512), format: format)
-        let square = renderer.image { context in
-            UIColor.white.setFill()
-            context.fill(CGRect(x: 0, y: 0, width: 512, height: 512))
-            let scale = max(512 / image.size.width, 512 / image.size.height)
-            let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-            image.draw(in: CGRect(x: (512 - size.width) / 2, y: (512 - size.height) / 2, width: size.width, height: size.height))
-        }
-        guard let result = square.jpegData(compressionQuality: 0.85) else { throw AvatarImportError.invalidImage }
-        return result
-    }
+
 }
 
 private enum AvatarImportError: Error {
