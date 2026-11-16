@@ -80,7 +80,7 @@ struct WeChatConversationListView: View {
                                                     Text(date, style: .time).font(.system(size: 11)).foregroundStyle(.tertiary)
                                                 }
                                             }
-                                            Text(store.messages(in: conversation).last?.text ?? L.text("暂无消息", "No messages yet"))
+                                            Text(store.messages(in: conversation).last?.preview ?? L.text("暂无消息", "No messages yet"))
                                                 .font(.system(size: 14)).foregroundStyle(.secondary).lineLimit(1)
                                         }
                                     }.padding(.horizontal, 16).padding(.vertical, 13).background(.white)

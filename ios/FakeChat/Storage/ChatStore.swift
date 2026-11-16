@@ -110,6 +110,20 @@ final class ChatStore: ObservableObject {
         save()
     }
 
+    func sendPhoto(_ data: Data, to id: UUID, senderID: UUID) {
+        sendPhotos([data], to: id, senderID: senderID)
+    }
+
+    func sendPhotos(_ photos: [Data], to id: UUID, senderID: UUID) {
+        guard canSave, !photos.isEmpty, photos.allSatisfy({ !$0.isEmpty }),
+              characters.contains(where: { $0.id == senderID }),
+              let index = conversations.firstIndex(where: { $0.id == id }),
+              conversations[index].participantIDs.contains(senderID) else { return }
+        conversations[index].messages.append(contentsOf: photos.map { Message(senderID: senderID, text: "", photoData: $0) })
+        conversations[index].deletedForCharacterIDs.removeAll()
+        save()
+    }
+
     private func save() {
         do {
             try persistence.save(SavedState(characters: characters, conversations: conversations, currentID: currentID))

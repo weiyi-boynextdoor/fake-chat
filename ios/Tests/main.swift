@@ -154,6 +154,30 @@ do {
     check(final.messages(in: final.conversations.first { $0.id == id }!).map(\.text) == ["Fresh"], "Persist independent history cutoffs")
 }
 
+do {
+    let photoDefaults = UserDefaults(suiteName: "fake-chat.photos.\(UUID().uuidString)")!
+    let persistence = ChatPersistence(defaults: photoDefaults)
+    let chats = ChatStore(persistence: persistence)
+    chats.addCharacter(name: "A")
+    chats.addCharacter(name: "B")
+    let sender = chats.characters[0], recipient = chats.characters[1]
+    let id = chats.start(with: recipient, platform: .weChat)!
+    chats.send("Text", to: id)
+    chats.sendPhoto(avatar, to: id, senderID: sender.id)
+    chats.sendPhoto(Data(), to: id, senderID: sender.id)
+    chats.sendPhoto(avatar, to: id, senderID: UUID())
+    let reloaded = ChatStore(persistence: persistence)
+    let messages = reloaded.conversations[0].messages
+    check(messages.count == 2, "Reject empty photos and unknown senders")
+    check(messages[0].text == "Text" && messages[0].photoData == nil, "Text records remain compatible")
+    check(messages[1].photoData == avatar && messages[1].senderID == sender.id, "Persist photo bytes and sender")
+    let orderedPhotos = [Data([3]), Data([1]), Data([2])]
+    chats.sendPhotos(orderedPhotos, to: id, senderID: sender.id)
+    let batch = ChatStore(persistence: persistence).conversations[0].messages.suffix(3)
+    check(batch.compactMap(\.photoData) == orderedPhotos, "Photo batches must preserve selection order after reload")
+    photoDefaults.removeObject(forKey: "fake-chat.state.v1")
+}
+
 let corrupted = Data("invalid data".utf8)
 defaults.set(corrupted, forKey: "fake-chat.state.v1")
 let damaged = ChatStore(persistence: persistence)
