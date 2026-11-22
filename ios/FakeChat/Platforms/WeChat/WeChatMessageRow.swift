@@ -7,12 +7,18 @@ struct WeChatMessageRow: View {
     let message: Message
     let sender: Character
     let outgoing: Bool
+    var platform: ChatPlatform = .weChat
+    private var bubbleColor: Color {
+        guard outgoing else { return .white }
+        return platform == .weChat ? WeChatStyle.outgoingBubble : Color.indigo.opacity(0.17)
+    }
+
     var photoMessages: [Message] = []
     @State private var showPhoto = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            if outgoing { Spacer(minLength: 55) } else { Avatar(character: sender, size: 40) }
+            if outgoing { Spacer(minLength: 55) } else { Avatar(character: sender, size: 40).clipShape(RoundedRectangle(cornerRadius: platform == .douyin ? 20 : 5.2)) }
             if let data = message.photoData, let image = UIImage(data: data) {
                 Button { showPhoto = true } label: {
                     Image(uiImage: image).resizable().aspectRatio(contentMode: .fit)
@@ -43,14 +49,16 @@ struct WeChatMessageRow: View {
             } else {
                 Text(message.text).font(.system(size: 17)).foregroundStyle(.black)
                     .padding(.horizontal, 12).padding(.vertical, 10)
-                    .background(outgoing ? WeChatStyle.outgoingBubble : .white, in: RoundedRectangle(cornerRadius: 5))
+                    .background(bubbleColor, in: RoundedRectangle(cornerRadius: platform == .weChat ? 5 : 14))
                     .overlay(alignment: outgoing ? .trailing : .leading) {
-                        Triangle().fill(outgoing ? WeChatStyle.outgoingBubble : .white)
+                        if platform == .weChat {
+                            Triangle().fill(bubbleColor)
                             .frame(width: 7, height: 12).rotationEffect(.degrees(outgoing ? 90 : -90))
                             .offset(x: outgoing ? 5 : -5, y: -2)
+                        }
                     }
             }
-            if outgoing { Avatar(character: sender, size: 40) } else { Spacer(minLength: 55) }
+            if outgoing { Avatar(character: sender, size: 40).clipShape(RoundedRectangle(cornerRadius: platform == .douyin ? 20 : 5.2)) } else { Spacer(minLength: 55) }
         }
     }
     private func videoTime(_ duration: Double) -> String {

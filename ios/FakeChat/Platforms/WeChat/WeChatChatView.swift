@@ -8,6 +8,8 @@ import UIKit
 struct WeChatChatView: View {
     @EnvironmentObject private var store: ChatStore
     let conversationID: UUID
+    var platform: ChatPlatform = .weChat
+    private var background: Color { platform == .weChat ? WeChatStyle.background : Color(white: 0.97) }
     @State private var draft = ""
     @State private var showSender = false
     @State private var showAttachments = false
@@ -30,7 +32,7 @@ struct WeChatChatView: View {
                         }
                         ForEach(messages) { message in
                             if let sender = store.character(message.senderID) {
-                                WeChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID, photoMessages: messages.filter { $0.photoData != nil && $0.videoFilename == nil }).id(message.id)
+                                WeChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID, platform: platform, photoMessages: messages.filter { $0.photoData != nil && $0.videoFilename == nil }).id(message.id)
                             }
                         }
                     }.padding(.horizontal, 12).padding(.bottom, 20)
@@ -54,7 +56,7 @@ struct WeChatChatView: View {
                         store.send(draft, to: conversationID)
                         draft = ""
                     }.font(.system(size: 15, weight: .medium)).padding(.horizontal, 12).padding(.vertical, 10)
-                        .background(Color.green, in: RoundedRectangle(cornerRadius: 5)).foregroundStyle(.white)
+                        .background(platform == .weChat ? Color.green : Color.indigo, in: RoundedRectangle(cornerRadius: 5)).foregroundStyle(.white)
                 }
                 Button {
                     inputFocused = false
@@ -70,9 +72,9 @@ struct WeChatChatView: View {
                 attachmentPanel
             }
         }
-        .background(WeChatStyle.background)
+        .background(background)
         .navigationTitle(partner?.name ?? "").navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(WeChatStyle.background, for: .navigationBar).toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(background, for: .navigationBar).toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showSender = true } label: { Image(systemName: "ellipsis").foregroundStyle(.primary) }

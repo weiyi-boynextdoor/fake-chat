@@ -1,8 +1,20 @@
 import Foundation
 
 struct ChatPersistence {
-    var defaults: UserDefaults = .standard
-    private let key = "fake-chat.state.v1"
+    var defaults: UserDefaults
+    let platform: ChatPlatform
+    let mediaDirectory: URL
+    private var key: String {
+        platform == .weChat ? "fake-chat.state.v1" : "fake-chat.\(platform.rawValue).state.v1"
+    }
+
+    init(defaults: UserDefaults = .standard, platform: ChatPlatform = .weChat, mediaDirectory: URL? = nil) {
+        self.defaults = defaults
+        self.platform = platform
+        let directoryName = platform == .weChat ? "ChatMedia" : "ChatMedia-\(platform.rawValue)"
+        self.mediaDirectory = mediaDirectory ?? URL.applicationSupportDirectory
+            .appendingPathComponent(directoryName, isDirectory: true)
+    }
 
     func load() throws -> SavedState? {
         guard let data = defaults.data(forKey: key) else { return nil }
@@ -12,7 +24,6 @@ struct ChatPersistence {
     func save(_ state: SavedState) throws {
         defaults.set(try JSONEncoder().encode(state), forKey: key)
     }
-    var mediaDirectory: URL = URL.applicationSupportDirectory.appendingPathComponent("ChatMedia", isDirectory: true)
 
     func videoURL(_ filename: String) -> URL {
         mediaDirectory.appendingPathComponent(filename)

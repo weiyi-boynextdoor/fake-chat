@@ -86,7 +86,7 @@ final class ChatStore: ObservableObject {
     }
 
     func start(with character: Character, platform: ChatPlatform) -> UUID? {
-        guard canSave, let currentID, character.id != currentID,
+        guard canSave, platform == persistence.platform, let currentID, character.id != currentID,
               characters.contains(where: { $0.id == character.id }) else { return nil }
         if let index = conversations.firstIndex(where: {
             $0.platform == platform && Set($0.participantIDs) == Set([currentID, character.id])

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WeChatConversationListView: View {
+    @Environment(\.dismiss) private var dismissMode
     @EnvironmentObject private var store: ChatStore
     @State private var showCharacters = false
     @State private var showNewChat = false
@@ -39,6 +40,9 @@ struct WeChatConversationListView: View {
             .navigationTitle(selectedTab.title).navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(WeChatStyle.background, for: .navigationBar).toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { dismissMode() } label: { Label(L.text("切换模式", "Switch mode"), systemImage: "rectangle.grid.1x2") }
+                }
                 if selectedTab == .chats || selectedTab == .contacts {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { showNewChat = true } label: { Image(systemName: "plus.circle").foregroundStyle(.primary) }

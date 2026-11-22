@@ -213,6 +213,41 @@ do {
     check(chats.conversations[0].messages.count == 3 && chats.error != nil, "Failed video import must not send a partial batch")
 }
 
+do {
+    let suite = "fake-chat.platforms.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let weChat = ChatPersistence(defaults: defaults, platform: .weChat)
+    let douyin = ChatPersistence(defaults: defaults, platform: .douyin)
+    let first = ChatStore(persistence: weChat)
+    first.addCharacter(name: "WeChat A")
+    first.addCharacter(name: "WeChat B")
+    let legacyID = first.start(with: first.characters[1], platform: .weChat)!
+    first.send("WeChat only", to: legacyID)
+    check(defaults.data(forKey: "fake-chat.state.v1") != nil, "WeChat must use the legacy storage key")
+
+    let second = ChatStore(persistence: douyin)
+    check(second.currentID == nil && second.characters.isEmpty && second.conversations.isEmpty,
+          "A new mode must not read the existing WeChat profile or history")
+    second.addCharacter(name: "Douyin A")
+    second.addCharacter(name: "Douyin B")
+    check(second.start(with: second.characters[1], platform: .weChat) == nil,
+          "A mode must not create conversations for another platform")
+    let douyinID = second.start(with: second.characters[1], platform: .douyin)!
+    second.send("Douyin only", to: douyinID)
+    second.select(second.characters[1])
+
+    let restoredWeChat = ChatStore(persistence: weChat)
+    let restoredDouyin = ChatStore(persistence: douyin)
+    check(restoredWeChat.current?.name == "WeChat A" && restoredDouyin.current?.name == "Douyin B",
+          "Modes must persist separate identities")
+    check(restoredWeChat.conversations.first?.messages.first?.text == "WeChat only"
+          && restoredDouyin.conversations.first?.messages.first?.text == "Douyin only",
+          "Modes must persist separate conversations")
+    check(weChat.videoURL("same.mov") != douyin.videoURL("same.mov"),
+          "Modes must use distinct local media paths")
+}
+
 let corrupted = Data("invalid data".utf8)
 defaults.set(corrupted, forKey: "fake-chat.state.v1")
 let damaged = ChatStore(persistence: persistence)

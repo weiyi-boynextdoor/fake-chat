@@ -28,6 +28,7 @@
 		E00000000000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00000000000000000000002 /* Assets.xcassets */; };
 		F00000000000000000000003 /* AvatarCropGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000001 /* AvatarCropGeometry.swift */; };
 		F00000000000000000000004 /* AvatarCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000002 /* AvatarCropView.swift */; };
+		123ABC000000000000000001 /* DouyinConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123ABC000000000000000002 /* DouyinConversationListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		E00000000000000000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F00000000000000000000001 /* AvatarCropGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCropGeometry.swift; sourceTree = "<group>"; };
 		F00000000000000000000002 /* AvatarCropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCropView.swift; sourceTree = "<group>"; };
+		123ABC000000000000000002 /* DouyinConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DouyinConversationListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				D00000000000000000000007 /* WeChat */,
+				123ABC000000000000000003 /* Douyin */,
 			);
 			path = Platforms;
 			sourceTree = "<group>";
@@ -182,6 +185,14 @@
 				B00000000000000000000011 /* ChatStore.swift */,
 			);
 			path = Storage;
+			sourceTree = "<group>";
+		};
+		123ABC000000000000000003 /* Douyin */ = {
+			isa = PBXGroup;
+			children = (
+				123ABC000000000000000002 /* DouyinConversationListView.swift */,
+			);
+			path = Douyin;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -262,6 +273,7 @@
 				C0000000000000000000000B /* WeChatConversationListView.swift in Sources */,
 				C0000000000000000000000C /* WeChatMessageRow.swift in Sources */,
 				C0000000000000000000000D /* WeChatStyle.swift in Sources */,
+				123ABC000000000000000001 /* DouyinConversationListView.swift in Sources */,
 				C0000000000000000000000E /* Avatar.swift in Sources */,
 				C0000000000000000000000F /* Localization.swift in Sources */,
 				C00000000000000000000010 /* ChatPersistence.swift in Sources */,
