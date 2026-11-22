@@ -1,7 +1,9 @@
+import AVKit
 import SwiftUI
 import UIKit
 
 struct WeChatMessageRow: View {
+    @EnvironmentObject private var store: ChatStore
     let message: Message
     let sender: Character
     let outgoing: Bool
@@ -16,11 +18,27 @@ struct WeChatMessageRow: View {
                     Image(uiImage: image).resizable().aspectRatio(contentMode: .fit)
                         .frame(width: min(180, 220 * image.size.width / max(image.size.height, 1)))
                         .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .overlay {
+                            if message.videoFilename != nil {
+                                Image(systemName: "play.circle.fill").font(.system(size: 38))
+                                    .foregroundStyle(.white).shadow(radius: 3)
+                            }
+                        }
+                        .overlay(alignment: .bottomTrailing) {
+                            if let duration = message.videoDuration {
+                                Text(videoTime(duration)).font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(.white).padding(5).background(.black.opacity(0.4))
+                            }
+                        }
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(L.text("查看照片", "View photo"))
+                .accessibilityLabel(message.videoFilename == nil ? L.text("查看照片", "View photo") : L.text("播放视频", "Play video"))
                 .fullScreenCover(isPresented: $showPhoto) {
-                    PhotoViewer(messages: photoMessages.isEmpty ? [message] : photoMessages, selectedID: message.id)
+                    if let url = store.videoURL(for: message) {
+                        ChatVideoPlayer(url: url)
+                    } else {
+                        PhotoViewer(messages: photoMessages.isEmpty ? [message] : photoMessages, selectedID: message.id)
+                    }
                 }
             } else {
                 Text(message.text).font(.system(size: 17)).foregroundStyle(.black)
@@ -35,6 +53,11 @@ struct WeChatMessageRow: View {
             if outgoing { Avatar(character: sender, size: 40) } else { Spacer(minLength: 55) }
         }
     }
+    private func videoTime(_ duration: Double) -> String {
+        let seconds = Int(max(0, duration.isFinite ? duration : 0))
+        return String(format: "%d:%02d", seconds / 60, seconds % 60)
+    }
+
 }
 
 private struct Triangle: Shape {
@@ -117,9 +140,9 @@ private struct PhotoViewer: View {
                 horizontal = nil
             }
         } else {
-            let reversed = peakDownward - offset.y > 16 || velocity.y < -120
-            let shouldClose = state == .ended && !reversed &&
-                (offset.y > size.height * 0.2 || (offset.y > 24 && velocity.y > 650))
+            let shouldClose = state == .ended && MediaDismissal.shouldClose(
+                distance: offset.y, velocity: velocity.y, peak: peakDownward, height: size.height
+            )
             if shouldClose {
                 closing = true
                 withAnimation(.easeOut(duration: 0.2)) { translation.height = size.height }
@@ -232,6 +255,131 @@ private final class PhotoScrollView: UIScrollView, UIScrollViewDelegate, UIGestu
             let point = gesture.location(in: imageView)
             let size = CGSize(width: bounds.width / 3, height: bounds.height / 3)
             zoom(to: CGRect(x: point.x - size.width / 2, y: point.y - size.height / 2, width: size.width, height: size.height), animated: true)
+        }
+    }
+}
+
+
+private struct ChatVideoPlayer: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var player: AVPlayer
+    @State private var translation = CGSize.zero
+    @State private var peakDownward: CGFloat = 0
+    @State private var closing = false
+
+    init(url: URL) {
+        _player = State(initialValue: AVPlayer(url: url))
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            let progress = min(1, max(0, translation.height) / geometry.size.height)
+            ZStack {
+                Color.black.opacity(1 - Double(progress) * 0.85)
+                VideoPlaybackSurface(player: player) { state, offset, velocity in
+                    handlePan(state, offset: offset, velocity: velocity, height: geometry.size.height)
+                }
+                .scaleEffect(1 - progress * 0.3)
+                .offset(translation)
+                .allowsHitTesting(!closing)
+            }.clipped()
+        }
+        .ignoresSafeArea()
+        .presentationBackground(.clear)
+        .statusBarHidden()
+        .onAppear {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+            try? AVAudioSession.sharedInstance().setActive(true)
+            player.play()
+        }
+        .onDisappear {
+            player.pause()
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
+        .accessibilityAction(.escape) { dismiss() }
+    }
+    private func handlePan(_ state: UIGestureRecognizer.State, offset: CGPoint, velocity: CGPoint, height: CGFloat) {
+        guard !closing else { return }
+        if state == .began { peakDownward = 0 }
+        if state == .began || state == .changed {
+            peakDownward = max(peakDownward, offset.y)
+            translation = CGSize(width: offset.x * 0.25, height: max(0, offset.y))
+            return
+        }
+        guard state == .ended || state == .cancelled || state == .failed else { return }
+        if state == .ended && MediaDismissal.shouldClose(distance: offset.y, velocity: velocity.y,
+                                                       peak: peakDownward, height: height) {
+            closing = true
+            player.pause()
+            withAnimation(.easeOut(duration: 0.2)) { translation.height = height }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { dismiss() }
+        } else {
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.85)) { translation = .zero }
+        }
+    }
+
+}
+
+
+private enum MediaDismissal {
+    static func shouldClose(distance: CGFloat, velocity: CGFloat, peak: CGFloat, height: CGFloat) -> Bool {
+        let reversed = peak - distance > 16 || velocity < -120
+        return !reversed && (distance > height * 0.2 || (distance > 24 && velocity > 650))
+    }
+}
+
+private struct VideoPlaybackSurface: UIViewControllerRepresentable {
+    let player: AVPlayer
+    let onPan: (UIGestureRecognizer.State, CGPoint, CGPoint) -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(onPan: onPan) }
+
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        controller.player = player
+        controller.allowsPictureInPicturePlayback = false
+        let pan = UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handlePan(_:)))
+        pan.maximumNumberOfTouches = 1
+        pan.delegate = context.coordinator
+        controller.view.addGestureRecognizer(pan)
+        return controller
+    }
+
+    func updateUIViewController(_ controller: AVPlayerViewController, context: Context) {
+        context.coordinator.onPan = onPan
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var onPan: (UIGestureRecognizer.State, CGPoint, CGPoint) -> Void
+
+        init(onPan: @escaping (UIGestureRecognizer.State, CGPoint, CGPoint) -> Void) {
+            self.onPan = onPan
+        }
+
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return false }
+            let velocity = pan.velocity(in: pan.view)
+            return velocity.y > abs(velocity.x)
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            var view = touch.view
+            while let current = view {
+                if current is UIControl { return false }
+                view = current.superview
+            }
+            // Leave the transport controls available for scrubbing and playback.
+            guard let surface = gestureRecognizer.view else { return false }
+            return touch.location(in: surface).y < surface.bounds.height - 100
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            true
+        }
+
+        @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+            onPan(gesture.state, gesture.translation(in: gesture.view?.window), gesture.velocity(in: gesture.view?.window))
         }
     }
 }

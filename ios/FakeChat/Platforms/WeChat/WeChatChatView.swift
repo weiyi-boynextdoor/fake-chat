@@ -1,3 +1,6 @@
+import AVFoundation
+import CoreTransferable
+import UniformTypeIdentifiers
 import PhotosUI
 import SwiftUI
 import UIKit
@@ -9,7 +12,7 @@ struct WeChatChatView: View {
     @State private var showSender = false
     @State private var showAttachments = false
     @State private var selection: [PhotosPickerItem] = []
-    @State private var isLoadingPhoto = false
+    @State private var isLoadingMedia = false
     @FocusState private var inputFocused: Bool
     private var conversation: Conversation? { store.conversations.first { $0.id == conversationID } }
     private var partner: Character? { conversation?.participantIDs.first { $0 != store.currentID }.flatMap(store.character) }
@@ -27,7 +30,7 @@ struct WeChatChatView: View {
                         }
                         ForEach(messages) { message in
                             if let sender = store.character(message.senderID) {
-                                WeChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID, photoMessages: messages.filter { $0.photoData != nil }).id(message.id)
+                                WeChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID, photoMessages: messages.filter { $0.photoData != nil && $0.videoFilename == nil }).id(message.id)
                             }
                         }
                     }.padding(.horizontal, 12).padding(.bottom, 20)
@@ -81,12 +84,33 @@ struct WeChatChatView: View {
         }
         .task(id: selection) {
             guard !selection.isEmpty, let senderID = store.currentID else { return }
-            let selectedPhotos = selection
-            isLoadingPhoto = true
-            defer { isLoadingPhoto = false; selection = [] }
+            let selectedMedia = selection
+            isLoadingMedia = true
+            defer { isLoadingMedia = false; selection = [] }
             do {
-                var photos: [Data] = []
-                for item in selectedPhotos {
+                var attachments: [MediaAttachment] = []
+                var temporaryVideos: [URL] = []
+                defer { temporaryVideos.forEach { try? FileManager.default.removeItem(at: $0) } }
+                for item in selectedMedia {
+                    if item.supportedContentTypes.contains(where: { $0.conforms(to: .movie) }) {
+                        guard let video = try await item.loadTransferable(type: ImportedVideo.self) else {
+                            throw PhotoImportError.invalidImage
+                        }
+                        temporaryVideos.append(video.url)
+                        try Task.checkCancellation()
+                        let asset = AVURLAsset(url: video.url)
+                        let duration = try await asset.load(.duration).seconds
+                        let generator = AVAssetImageGenerator(asset: asset)
+                        generator.appliesPreferredTrackTransform = true
+                        generator.maximumSize = CGSize(width: 480, height: 480)
+                        let frame = try await generator.image(at: .zero).image
+                        guard let thumbnail = UIImage(cgImage: frame).jpegData(compressionQuality: 0.8) else {
+                            throw PhotoImportError.invalidImage
+                        }
+                        attachments.append(MediaAttachment(photoData: thumbnail, videoURL: video.url,
+                                                           duration: duration.isFinite ? duration : 0))
+                        continue
+                    }
                     guard let data = try await item.loadTransferable(type: Data.self),
                           let image = UIImage(data: data) else { throw PhotoImportError.invalidImage }
                     try Task.checkCancellation()
@@ -98,14 +122,14 @@ struct WeChatChatView: View {
                         image.draw(in: CGRect(origin: .zero, size: size))
                     }
                     guard let photo = resized.jpegData(compressionQuality: 0.85) else { throw PhotoImportError.invalidImage }
-                    photos.append(photo)
+                    attachments.append(MediaAttachment(photoData: photo))
                 }
                 try Task.checkCancellation()
-                store.sendPhotos(photos, to: conversationID, senderID: senderID)
+                store.sendMedia(attachments, to: conversationID, senderID: senderID)
                 withAnimation { showAttachments = false }
             } catch {
                 if !Task.isCancelled {
-                    store.error = L.text("无法读取这张照片，请重新选择", "Could not load this photo. Please choose another")
+                    store.error = L.text("无法读取所选照片或视频，请重新选择", "Could not load the selected photos or videos. Please choose again")
                 }
             }
         }
@@ -118,10 +142,10 @@ struct WeChatChatView: View {
 
     private var attachmentPanel: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 20) {
-            PhotosPicker(selection: $selection, selectionBehavior: .ordered, matching: .images) {
+            PhotosPicker(selection: $selection, selectionBehavior: .ordered, matching: .any(of: [.images, .videos])) {
                 optionLabel(L.text("照片", "Photos"), symbol: "photo.fill")
-                    .overlay { if isLoadingPhoto { ProgressView() } }
-            }.buttonStyle(.plain).disabled(isLoadingPhoto)
+                    .overlay { if isLoadingMedia { ProgressView() } }
+            }.buttonStyle(.plain).disabled(isLoadingMedia)
             optionLabel(L.text("拍摄", "Camera"), symbol: "camera.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
             optionLabel(L.text("视频通话", "Video call"), symbol: "video.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
             optionLabel(L.text("位置", "Location"), symbol: "mappin.circle.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
@@ -147,3 +171,17 @@ struct WeChatChatView: View {
 
 
 private enum PhotoImportError: Error { case invalidImage }
+
+private struct ImportedVideo: Transferable {
+    let url: URL
+
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .movie) { received in
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension(received.file.pathExtension.isEmpty ? "mov" : received.file.pathExtension)
+            try FileManager.default.copyItem(at: received.file, to: url)
+            return ImportedVideo(url: url)
+        }
+    }
+}

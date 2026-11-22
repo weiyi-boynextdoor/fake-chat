@@ -178,6 +178,41 @@ do {
     photoDefaults.removeObject(forKey: "fake-chat.state.v1")
 }
 
+do {
+    let suite = "fake-chat.media.\(UUID().uuidString)"
+    let mediaDefaults = UserDefaults(suiteName: suite)!
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer {
+        mediaDefaults.removePersistentDomain(forName: suite)
+        try? FileManager.default.removeItem(at: directory)
+    }
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let source = directory.appendingPathComponent("source.mov")
+    let bytes = Data([1, 3, 5, 7])
+    try bytes.write(to: source)
+    let persistence = ChatPersistence(defaults: mediaDefaults, mediaDirectory: directory.appendingPathComponent("saved"))
+    let chats = ChatStore(persistence: persistence)
+    chats.addCharacter(name: "A")
+    chats.addCharacter(name: "B")
+    let id = chats.start(with: chats.characters[1], platform: .weChat)!
+    let senderID = chats.characters[0].id
+    chats.sendMedia([MediaAttachment(photoData: avatar),
+                     MediaAttachment(photoData: avatar, videoURL: source, duration: 12.5),
+                     MediaAttachment(photoData: avatar)], to: id, senderID: senderID)
+    try FileManager.default.removeItem(at: source)
+    let restored = ChatStore(persistence: persistence)
+    let messages = restored.conversations[0].messages
+    check(messages.count == 3 && messages[0].videoFilename == nil && messages[2].videoFilename == nil,
+          "Mixed media must preserve selection order")
+    check(messages[1].videoDuration == 12.5 && messages[1].photoData == avatar, "Restore video duration and thumbnail")
+    let savedVideo = try Data(contentsOf: restored.videoURL(for: messages[1])!)
+    check(savedVideo == bytes, "Video must survive removal of the picker temporary file")
+    check(messages[1].preview == L.text("[视频]", "[Video]"), "Video preview must not be labeled as a photo")
+    chats.sendMedia([MediaAttachment(photoData: avatar), MediaAttachment(photoData: avatar, videoURL: source)],
+                    to: id, senderID: senderID)
+    check(chats.conversations[0].messages.count == 3 && chats.error != nil, "Failed video import must not send a partial batch")
+}
+
 let corrupted = Data("invalid data".utf8)
 defaults.set(corrupted, forKey: "fake-chat.state.v1")
 let damaged = ChatStore(persistence: persistence)

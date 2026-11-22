@@ -7,5 +7,14 @@ struct Message: Identifiable, Codable {
     var date = Date()
     var photoData: Data?
 
-    var preview: String { photoData == nil ? text : L.text("[照片]", "[Photo]") }
+    var videoFilename: String?
+    var videoDuration: Double?
+
+    var preview: String { videoFilename != nil ? L.text("[视频]", "[Video]") : (photoData == nil ? text : L.text("[照片]", "[Photo]")) }
+}
+
+struct MediaAttachment {
+    var photoData: Data
+    var videoURL: URL? = nil
+    var duration: Double? = nil
 }

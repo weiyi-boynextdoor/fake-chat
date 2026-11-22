@@ -124,6 +124,38 @@ final class ChatStore: ObservableObject {
         save()
     }
 
+    func videoURL(for message: Message) -> URL? {
+        message.videoFilename.map(persistence.videoURL)
+    }
+
+    func sendMedia(_ attachments: [MediaAttachment], to id: UUID, senderID: UUID) {
+        guard canSave, !attachments.isEmpty, attachments.allSatisfy({ !$0.photoData.isEmpty }),
+              characters.contains(where: { $0.id == senderID }),
+              let index = conversations.firstIndex(where: { $0.id == id }),
+              conversations[index].participantIDs.contains(senderID) else { return }
+        var filenames: [String] = []
+        do {
+            let messages = try attachments.map { attachment in
+                var filename: String?
+                if let url = attachment.videoURL {
+                    let imported = try persistence.importVideo(url)
+                    filename = imported
+                    filenames.append(imported)
+                }
+                return Message(senderID: senderID, text: "", photoData: attachment.photoData,
+                               videoFilename: filename, videoDuration: attachment.duration)
+            }
+            var updated = conversations
+            updated[index].messages.append(contentsOf: messages)
+            updated[index].deletedForCharacterIDs.removeAll()
+            try persistence.save(SavedState(characters: characters, conversations: updated, currentID: currentID))
+            conversations = updated
+        } catch {
+            filenames.forEach(persistence.removeVideo)
+            self.error = L.text("媒体保存失败，请重试", "Could not save media. Please try again")
+        }
+    }
+
     private func save() {
         do {
             try persistence.save(SavedState(characters: characters, conversations: conversations, currentID: currentID))
