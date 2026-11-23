@@ -10,7 +10,7 @@ struct WeChatMessageRow: View {
     var platform: ChatPlatform = .weChat
     private var bubbleColor: Color {
         guard outgoing else { return .white }
-        return platform == .weChat ? WeChatStyle.outgoingBubble : Color.indigo.opacity(0.17)
+        return platform == .weChat ? WeChatStyle.outgoingBubble : Color(red: 0.23, green: 0.32, blue: 0.75)
     }
 
     var photoMessages: [Message] = []
@@ -47,7 +47,8 @@ struct WeChatMessageRow: View {
                     }
                 }
             } else {
-                Text(message.text).font(.system(size: 17)).foregroundStyle(.black)
+                Text(message.text).font(.system(size: 17))
+                    .foregroundStyle(platform == .douyin && outgoing ? Color.white : Color.black)
                     .padding(.horizontal, 12).padding(.vertical, 10)
                     .background(bubbleColor, in: RoundedRectangle(cornerRadius: platform == .weChat ? 5 : 14))
                     .overlay(alignment: outgoing ? .trailing : .leading) {

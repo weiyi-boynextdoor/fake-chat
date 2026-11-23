@@ -87,17 +87,11 @@ struct DouyinConversationListView: View {
                                 HStack(spacing: 12) {
                                     Avatar(character: partner, size: 50).clipShape(Circle())
                                     VStack(alignment: .leading, spacing: 5) {
-                                        HStack {
-                                            Text(partner.name).font(.headline).lineLimit(1)
-                                            Spacer()
-                                            if let latest = entry.latest {
-                                                Text(latest.date, style: .relative)
-                                                    .font(.caption).foregroundStyle(.secondary)
-                                            }
-                                        }
+                                        Text(partner.name).font(.headline).lineLimit(1)
                                         Text(entry.latest?.preview ?? L.text("暂无消息", "No messages yet"))
                                             .font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                                     }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .padding(.vertical, 5)
                                 .contentShape(Rectangle())

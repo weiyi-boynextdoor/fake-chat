@@ -6,10 +6,11 @@ import SwiftUI
 import UIKit
 
 struct WeChatChatView: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: ChatStore
     let conversationID: UUID
     var platform: ChatPlatform = .weChat
-    private var background: Color { platform == .weChat ? WeChatStyle.background : Color(white: 0.97) }
+    private var background: Color { platform == .weChat ? WeChatStyle.background : Color(red: 0.95, green: 0.95, blue: 0.98) }
     @State private var draft = ""
     @State private var showSender = false
     @State private var showAttachments = false
@@ -23,9 +24,13 @@ struct WeChatChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            if platform == .douyin { douyinHeader }
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 18) {
+                        if platform == .douyin, let partner {
+                            douyinProfile(partner)
+                        }
                         if let first = messages.first {
                             Text(first.date, format: .dateTime.month().day().hour().minute())
                                 .font(.system(size: 12)).foregroundStyle(.secondary).padding(.top, 18)
@@ -43,42 +48,26 @@ struct WeChatChatView: View {
                     if let id = messages.last?.id { withAnimation { proxy.scrollTo(id, anchor: .bottom) } }
                 }
             }
-            Divider()
-            HStack(alignment: .bottom, spacing: 10) {
-                Image(systemName: "waveform.circle").font(.system(size: 27)).padding(.bottom, 5).accessibilityHidden(true)
-                TextField(L.text("输入消息", "Message"), text: $draft, axis: .vertical)
-                    .focused($inputFocused)
-                    .lineLimit(1...5).padding(10).background(.white, in: RoundedRectangle(cornerRadius: 5))
-                if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Image(systemName: "face.smiling").font(.system(size: 25)).padding(.bottom, 6).accessibilityHidden(true)
-                } else {
-                    Button(L.text("发送", "Send")) {
-                        store.send(draft, to: conversationID)
-                        draft = ""
-                    }.font(.system(size: 15, weight: .medium)).padding(.horizontal, 12).padding(.vertical, 10)
-                        .background(platform == .weChat ? Color.green : Color.indigo, in: RoundedRectangle(cornerRadius: 5)).foregroundStyle(.white)
-                }
-                Button {
-                    inputFocused = false
-                    withAnimation(.easeOut(duration: 0.2)) { showAttachments.toggle() }
-                } label: {
-                    Image(systemName: "plus.circle").font(.system(size: 27)).padding(.bottom, 5)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(L.text("更多功能", "More options"))
-                .accessibilityValue(showAttachments ? L.text("已展开", "Expanded") : L.text("已收起", "Collapsed"))
-            }.padding(.horizontal, 10).padding(.vertical, 8).background(Color(white: 0.96))
+            if platform == .douyin {
+                douyinComposer
+            } else {
+                Divider()
+                weChatComposer
+            }
             if showAttachments {
                 attachmentPanel
             }
         }
         .background(background)
         .navigationTitle(partner?.name ?? "").navigationBarTitleDisplayMode(.inline)
+        .toolbar(platform == .douyin ? .hidden : .visible, for: .navigationBar)
         .toolbarBackground(background, for: .navigationBar).toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button { showSender = true } label: { Image(systemName: "ellipsis").foregroundStyle(.primary) }
-                    .accessibilityLabel(L.text("切换发送角色", "Switch sender"))
+            if platform == .weChat {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showSender = true } label: { Image(systemName: "ellipsis").foregroundStyle(.primary) }
+                        .accessibilityLabel(L.text("切换发送角色", "Switch sender"))
+                }
             }
         }
         .onChange(of: inputFocused) { _, focused in
@@ -142,19 +131,134 @@ struct WeChatChatView: View {
         }
     }
 
+    private var weChatComposer: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            Image(systemName: "waveform.circle").font(.system(size: 27)).padding(.bottom, 5).accessibilityHidden(true)
+            TextField(L.text("输入消息", "Message"), text: $draft, axis: .vertical)
+                .focused($inputFocused)
+                .lineLimit(1...5).padding(10).background(.white, in: RoundedRectangle(cornerRadius: 5))
+            if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Image(systemName: "face.smiling").font(.system(size: 25)).padding(.bottom, 6).accessibilityHidden(true)
+            } else {
+                Button(L.text("发送", "Send")) {
+                    store.send(draft, to: conversationID)
+                    draft = ""
+                }.font(.system(size: 15, weight: .medium)).padding(.horizontal, 12).padding(.vertical, 10)
+                    .background(Color.green, in: RoundedRectangle(cornerRadius: 5)).foregroundStyle(.white)
+            }
+            attachmentButton
+                .padding(.bottom, 5)
+        }.padding(.horizontal, 10).padding(.vertical, 8).background(Color(white: 0.96))
+    }
+
+    private var douyinHeader: some View {
+        HStack(spacing: 8) {
+            Button { dismiss() } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 19, weight: .semibold))
+                    .frame(width: 36, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L.text("返回消息", "Back to messages"))
+
+            if let partner {
+                HStack(spacing: 9) {
+                    Avatar(character: partner, size: 34).clipShape(Circle())
+                    Text(partner.name).font(.headline).lineLimit(1)
+                }
+                .contextMenu {
+                    Button(L.text("切换发送角色", "Switch sender"), systemImage: "person.2") {
+                        showSender = true
+                    }
+                }
+            }
+            Spacer(minLength: 0)
+            Button(L.text("通话", "Call"), systemImage: "phone") {}
+                .labelStyle(.iconOnly).disabled(true).frame(width: 40, height: 44)
+            Button(L.text("更多", "More"), systemImage: "ellipsis") {}
+                .labelStyle(.iconOnly).disabled(true).frame(width: 40, height: 44)
+        }
+        .font(.system(size: 20))
+        .foregroundStyle(.primary)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .overlay(alignment: .bottom) { Divider() }
+    }
+
+    private func douyinProfile(_ character: Character) -> some View {
+        VStack(spacing: 10) {
+            Avatar(character: character, size: 84).clipShape(Circle())
+            Text(character.name).font(.title3.weight(.semibold))
+            if !character.signature.isEmpty {
+                Text(character.signature)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 28)
+        .padding(.top, 22)
+    }
+
+    private var douyinComposer: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "square.grid.2x2").font(.system(size: 21))
+                .accessibilityHidden(true)
+            TextField(L.text("输入消息", "Message"), text: $draft, axis: .vertical)
+                .focused($inputFocused)
+                .lineLimit(1...5)
+            if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Image(systemName: "waveform.circle").font(.system(size: 25)).accessibilityHidden(true)
+                Image(systemName: "face.smiling").font(.system(size: 25)).accessibilityHidden(true)
+            } else {
+                Button(L.text("发送", "Send")) {
+                    store.send(draft, to: conversationID)
+                    draft = ""
+                }
+                .font(.subheadline.weight(.semibold))
+                .buttonStyle(.borderedProminent)
+            }
+            attachmentButton
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 5)
+        .background(.white, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+    }
+
+    private var attachmentButton: some View {
+        Button {
+            inputFocused = false
+            withAnimation(.easeOut(duration: 0.2)) { showAttachments.toggle() }
+        } label: {
+            Image(systemName: "plus.circle").font(.system(size: 27))
+                .frame(minWidth: platform == .douyin ? 36 : 27, minHeight: platform == .douyin ? 44 : 27)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(L.text("更多功能", "More options"))
+        .accessibilityValue(showAttachments ? L.text("已展开", "Expanded") : L.text("已收起", "Collapsed"))
+    }
+
     private var attachmentPanel: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 20) {
             PhotosPicker(selection: $selection, selectionBehavior: .ordered, matching: .any(of: [.images, .videos])) {
-                optionLabel(L.text("照片", "Photos"), symbol: "photo.fill")
+                optionLabel(
+                    platform == .douyin ? L.text("相册", "Library") : L.text("照片", "Photos"),
+                    symbol: "photo.fill"
+                )
                     .overlay { if isLoadingMedia { ProgressView() } }
             }.buttonStyle(.plain).disabled(isLoadingMedia)
-            optionLabel(L.text("拍摄", "Camera"), symbol: "camera.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
-            optionLabel(L.text("视频通话", "Video call"), symbol: "video.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
-            optionLabel(L.text("位置", "Location"), symbol: "mappin.circle.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
-            optionLabel(L.text("红包", "Red packet"), symbol: "gift.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
-            optionLabel(L.text("转账", "Transfer"), symbol: "arrow.left.arrow.right").accessibilityValue(L.text("暂不可用", "Unavailable"))
-            optionLabel(L.text("语音输入", "Voice input"), symbol: "mic.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
-            optionLabel(L.text("收藏", "Favorites"), symbol: "cube.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+            if platform == .weChat {
+                optionLabel(L.text("拍摄", "Camera"), symbol: "camera.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+                optionLabel(L.text("视频通话", "Video call"), symbol: "video.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+                optionLabel(L.text("位置", "Location"), symbol: "mappin.circle.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+                optionLabel(L.text("红包", "Red packet"), symbol: "gift.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+                optionLabel(L.text("转账", "Transfer"), symbol: "arrow.left.arrow.right").accessibilityValue(L.text("暂不可用", "Unavailable"))
+                optionLabel(L.text("语音输入", "Voice input"), symbol: "mic.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+                optionLabel(L.text("收藏", "Favorites"), symbol: "cube.fill").accessibilityValue(L.text("暂不可用", "Unavailable"))
+            }
         }
         .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, 22)
         .background(Color(white: 0.96).ignoresSafeArea(edges: .bottom))
