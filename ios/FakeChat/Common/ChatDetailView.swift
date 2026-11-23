@@ -5,7 +5,7 @@ import PhotosUI
 import SwiftUI
 import UIKit
 
-struct WeChatChatView: View {
+struct ChatDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: ChatStore
     let conversationID: UUID
@@ -37,7 +37,7 @@ struct WeChatChatView: View {
                         }
                         ForEach(messages) { message in
                             if let sender = store.character(message.senderID) {
-                                WeChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID, platform: platform, photoMessages: messages.filter { $0.photoData != nil && $0.videoFilename == nil }).id(message.id)
+                                ChatMessageRow(message: message, sender: sender, outgoing: sender.id == store.currentID, platform: platform, photoMessages: messages.filter { $0.photoData != nil && $0.videoFilename == nil }).id(message.id)
                             }
                         }
                     }.padding(.horizontal, 12).padding(.bottom, 20)

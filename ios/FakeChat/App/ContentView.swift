@@ -55,7 +55,7 @@ struct ConversationDestination: View {
 
     var body: some View {
         if let conversation = store.conversations.first(where: { $0.id == conversationID }) {
-            WeChatChatView(conversationID: conversationID, platform: conversation.platform)
+            ChatDetailView(conversationID: conversationID, platform: conversation.platform)
         } else {
             ContentUnavailableView(L.text("聊天不存在", "Conversation unavailable"), systemImage: "bubble.left")
         }

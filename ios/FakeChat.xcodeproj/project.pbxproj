@@ -17,9 +17,9 @@
 		C00000000000000000000007 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* Conversation.swift */; };
 		C00000000000000000000008 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* Message.swift */; };
 		C00000000000000000000009 /* SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* SavedState.swift */; };
-		C0000000000000000000000A /* WeChatChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000A /* WeChatChatView.swift */; };
+		C0000000000000000000000A /* ChatDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000A /* ChatDetailView.swift */; };
 		C0000000000000000000000B /* WeChatConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000B /* WeChatConversationListView.swift */; };
-		C0000000000000000000000C /* WeChatMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* WeChatMessageRow.swift */; };
+		C0000000000000000000000C /* ChatMessageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* ChatMessageRow.swift */; };
 		C0000000000000000000000D /* WeChatStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000D /* WeChatStyle.swift */; };
 		C0000000000000000000000E /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000E /* Avatar.swift */; };
 		C0000000000000000000000F /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000F /* Localization.swift */; };
@@ -29,6 +29,7 @@
 		F00000000000000000000003 /* AvatarCropGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000001 /* AvatarCropGeometry.swift */; };
 		F00000000000000000000004 /* AvatarCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000002 /* AvatarCropView.swift */; };
 		123ABC000000000000000001 /* DouyinConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123ABC000000000000000002 /* DouyinConversationListView.swift */; };
+		123ABC000000000000000005 /* ChatMediaViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123ABC000000000000000004 /* ChatMediaViewer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,9 +45,9 @@
 		B00000000000000000000007 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		B00000000000000000000008 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		B00000000000000000000009 /* SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedState.swift; sourceTree = "<group>"; };
-		B0000000000000000000000A /* WeChatChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatChatView.swift; sourceTree = "<group>"; };
+		B0000000000000000000000A /* ChatDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatDetailView.swift; sourceTree = "<group>"; };
 		B0000000000000000000000B /* WeChatConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatConversationListView.swift; sourceTree = "<group>"; };
-		B0000000000000000000000C /* WeChatMessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatMessageRow.swift; sourceTree = "<group>"; };
+		B0000000000000000000000C /* ChatMessageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageRow.swift; sourceTree = "<group>"; };
 		B0000000000000000000000D /* WeChatStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatStyle.swift; sourceTree = "<group>"; };
 		B0000000000000000000000E /* Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
 		B0000000000000000000000F /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
@@ -56,6 +57,7 @@
 		F00000000000000000000001 /* AvatarCropGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCropGeometry.swift; sourceTree = "<group>"; };
 		F00000000000000000000002 /* AvatarCropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCropView.swift; sourceTree = "<group>"; };
 		123ABC000000000000000002 /* DouyinConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DouyinConversationListView.swift; sourceTree = "<group>"; };
+		123ABC000000000000000004 /* ChatMediaViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMediaViewer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +96,7 @@
 				D00000000000000000000002 /* Features */,
 				D00000000000000000000005 /* Models */,
 				D00000000000000000000006 /* Platforms */,
-				D00000000000000000000008 /* Shared */,
+				D00000000000000000000008 /* Common */,
 				D00000000000000000000009 /* Storage */,
 			);
 			path = FakeChat;
@@ -159,23 +161,24 @@
 		D00000000000000000000007 /* WeChat */ = {
 			isa = PBXGroup;
 			children = (
-				B0000000000000000000000A /* WeChatChatView.swift */,
 				B0000000000000000000000B /* WeChatConversationListView.swift */,
-				B0000000000000000000000C /* WeChatMessageRow.swift */,
 				B0000000000000000000000D /* WeChatStyle.swift */,
 			);
 			path = WeChat;
 			sourceTree = "<group>";
 		};
-		D00000000000000000000008 /* Shared */ = {
+		D00000000000000000000008 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				B0000000000000000000000A /* ChatDetailView.swift */,
+				B0000000000000000000000C /* ChatMessageRow.swift */,
+				123ABC000000000000000004 /* ChatMediaViewer.swift */,
 				F00000000000000000000002 /* AvatarCropView.swift */,
 				F00000000000000000000001 /* AvatarCropGeometry.swift */,
 				B0000000000000000000000E /* Avatar.swift */,
 				B0000000000000000000000F /* Localization.swift */,
 			);
-			path = Shared;
+			path = Common;
 			sourceTree = "<group>";
 		};
 		D00000000000000000000009 /* Storage */ = {
@@ -269,9 +272,10 @@
 				C00000000000000000000007 /* Conversation.swift in Sources */,
 				C00000000000000000000008 /* Message.swift in Sources */,
 				C00000000000000000000009 /* SavedState.swift in Sources */,
-				C0000000000000000000000A /* WeChatChatView.swift in Sources */,
+				C0000000000000000000000A /* ChatDetailView.swift in Sources */,
 				C0000000000000000000000B /* WeChatConversationListView.swift in Sources */,
-				C0000000000000000000000C /* WeChatMessageRow.swift in Sources */,
+				C0000000000000000000000C /* ChatMessageRow.swift in Sources */,
+				123ABC000000000000000005 /* ChatMediaViewer.swift in Sources */,
 				C0000000000000000000000D /* WeChatStyle.swift in Sources */,
 				123ABC000000000000000001 /* DouyinConversationListView.swift in Sources */,
 				C0000000000000000000000E /* Avatar.swift in Sources */,
